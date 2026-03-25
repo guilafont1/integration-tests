@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
-from app.main import app
+from app.main import create_app
 
 
 def _make_test_engine():
@@ -27,6 +27,7 @@ def test_products_post_then_get():
         finally:
             db.close()
 
+    app = create_app(engine=engine)
     app.dependency_overrides[get_db] = override_get_db
 
     with TestClient(app) as client:
@@ -55,4 +56,5 @@ def test_products_post_then_get():
         assert listed_json[0]["name"] == "Laptop"
 
     app.dependency_overrides.clear()
+    engine.dispose()
 

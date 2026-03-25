@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import (
     Boolean,
@@ -15,6 +15,10 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 
 
+def utcnow():
+    return datetime.now(UTC)
+
+
 class Product(Base):
     __tablename__ = "products"
 
@@ -25,7 +29,7 @@ class Product(Base):
     stock = Column(Integer, default=0)
     category = Column(String(50), nullable=True)
     active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
     cart_items = relationship("CartItem", back_populates="product")
     order_items = relationship("OrderItem", back_populates="product")
@@ -37,7 +41,7 @@ class Coupon(Base):
     code = Column(String(20), primary_key=True)
     reduction = Column(Float, nullable=False)
     actif = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 
 class Cart(Base):
@@ -45,8 +49,8 @@ class Cart(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, nullable=False, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
 
     items = relationship("CartItem", back_populates="cart", cascade="all, delete-orphan")
 
@@ -72,7 +76,7 @@ class Order(Base):
     total_ttc = Column(Float, nullable=False)
     coupon_code = Column(String(20), ForeignKey("coupons.code"), nullable=True)
     status = Column(String(20), default="pending")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
     coupon = relationship("Coupon")
