@@ -29,6 +29,6 @@ jobs:
       - name: Security (bandit)
         run: python -m bandit -r app
 
-      - name: Tests + coverage gate (pytest)
-        run: python -m pytest
+      - name: Run tests + coverage.xml
+        run: python -m pytest --cov=app --cov-report=xml --cov-fail-under=80
 
