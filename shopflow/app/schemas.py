@@ -97,7 +97,7 @@ class OrderResponse(BaseModel):
     user_id: int
     total_ht: float
     total_ttc: float
-    coupon_code: Optional[str]
+    coupon_code: Optional[str] = None
     status: str
     created_at: datetime
     items: List[OrderItemResponse] = []
