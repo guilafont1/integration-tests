@@ -16,7 +16,9 @@ def get_or_create_cart(db: Session, user_id: int) -> Cart:
     return cart
 
 
-def add_item(db: Session, user_id: int, product_id: int, quantity: int) -> Cart:
+def add_item(
+    db: Session, user_id: int, product_id: int, quantity: int
+) -> Cart:
     if quantity <= 0:
         raise ValueError(f"Quantité invalide : {quantity}")
 
@@ -29,13 +31,20 @@ def add_item(db: Session, user_id: int, product_id: int, quantity: int) -> Cart:
     cart = get_or_create_cart(db, user_id)
     item = (
         db.query(CartItem)
-        .filter(CartItem.cart_id == cart.id, CartItem.product_id == product_id)
+        .filter(
+            CartItem.cart_id == cart.id,
+            CartItem.product_id == product_id,
+        )
         .first()
     )
     if item:
         item.quantity += quantity
     else:
-        item = CartItem(cart_id=cart.id, product_id=product_id, quantity=quantity)
+        item = CartItem(
+            cart_id=cart.id,
+            product_id=product_id,
+            quantity=quantity,
+        )
         db.add(item)
 
     db.commit()
@@ -46,4 +55,3 @@ def add_item(db: Session, user_id: int, product_id: int, quantity: int) -> Cart:
 def clear_cart(db: Session, cart: Cart) -> None:
     db.query(CartItem).filter(CartItem.cart_id == cart.id).delete()
     db.commit()
-

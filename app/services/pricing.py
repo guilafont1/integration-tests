@@ -16,6 +16,9 @@ def appliquer_coupon(prix: float, coupon: Coupon) -> float:
     if not coupon.actif:
         raise ValueError(f"Coupon inactif : {coupon.code}")
 
+    if coupon.reduction > 30:
+        raise ValueError("Réduction trop élevée")
+
     if not 0 < coupon.reduction <= 100:
         raise ValueError(f"Réduction invalide : {coupon.reduction}")
 

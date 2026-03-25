@@ -15,7 +15,9 @@ def get_cart(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/cart/{user_id}/items", response_model=CartResponse)
-def add_cart_item(user_id: int, item: CartItemCreate, db: Session = Depends(get_db)):
+def add_cart_item(
+    user_id: int, item: CartItemCreate, db: Session = Depends(get_db)
+):
     try:
         return add_item(db, user_id, item.product_id, item.quantity)
     except ValueError as e:

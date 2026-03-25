@@ -15,7 +15,9 @@ def verifier_stock(product: Product, quantite: int) -> bool:
     return product.stock >= quantite
 
 
-def reserver_stock(product: Product, quantite: int, session: Session) -> Product:
+def reserver_stock(
+    product: Product, quantite: int, session: Session
+) -> Product:
     if not verifier_stock(product, quantite):
         raise ValueError(
             f"Stock insuffisant pour '{product.name}' : "
@@ -28,11 +30,13 @@ def reserver_stock(product: Product, quantite: int, session: Session) -> Product
 
     cache_key = f"product:{product.id}:stock"
     redis_client.delete(cache_key)
-    logger.info(f"Stock réservé : {product.id}, qty={quantite}")
+    logger.info("Stock réservé : %s, qty=%s", product.id, quantite)
     return product
 
 
-def liberer_stock(product: Product, quantite: int, session: Session) -> Product:
+def liberer_stock(
+    product: Product, quantite: int, session: Session
+) -> Product:
     if quantite <= 0:
         raise ValueError(f"Quantité invalide : {quantite}")
 

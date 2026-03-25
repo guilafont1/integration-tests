@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models import Cart, CartItem, Coupon, Order, OrderItem, Product
+from app.models import Cart, Coupon, Order, OrderItem, Product
 from app.services.pricing import calculer_total
 
 
@@ -18,7 +18,10 @@ def create_order_from_cart(
         raise ValueError("Panier vide")
 
     coupon = _get_coupon(db, coupon_code)
-    produits = [(db.get(Product, i.product_id), i.quantity) for i in cart.items]
+    produits = [
+        (db.get(Product, i.product_id), i.quantity)
+        for i in cart.items
+    ]
 
     total_ht = sum(p.price * q for p, q in produits)
     total_ttc = calculer_total(produits, coupon=coupon)
@@ -47,4 +50,3 @@ def create_order_from_cart(
     db.commit()
     db.refresh(order)
     return order
-

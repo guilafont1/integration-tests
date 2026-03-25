@@ -83,6 +83,58 @@ la partie la plus “TP1” (pricing).
 - **Unitaires** : `tests/unit/test_pricing.py`
 - **Intégration API** : `tests/integration/test_products_api.py`, `tests/integration/test_cart_order_api.py`
 
+## CI Pipeline (TP3)
+
+Le projet inclut un pipeline reproductible qui valide automatiquement :
+
+- **Lint** : `flake8`
+- **Tests** : `pytest` (en parallèle via `pytest-xdist`, `-n auto`)
+- **Coverage gate** : seuil `--cov-fail-under=80` (config dans `pytest.ini`)
+
+Exécution du pipeline (Windows / PowerShell) :
+
+```bash
+powershell -ExecutionPolicy Bypass -File run_pipeline.ps1
+```
+
+## TP4 (qualité avancée)
+
+- **E2E** : `tests/integration/test_e2e_flow.py` (flow complet produit → panier → commande)
+- **Sécurité** : `bandit -r app` (intégré au pipeline `run_pipeline.ps1`)
+- **Performance** : `locustfile.py` (lancer `locust` puis ouvrir `http://localhost:8089`)
+- **TDD (coupon)** : exemple de règle métier “réduction max 30%” + tests (`tests/unit/test_coupon.py`)
+
+### TP4 — Rapport performance (Locust)
+
+Pré-requis : lancer l’API en local.
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Lancer Locust :
+
+```bash
+locust --host http://127.0.0.1:8000
+```
+
+Puis ouvrir `http://localhost:8089` et exécuter un test (ex : 50 users).
+
+#### Résultats (exemple de campagne)
+
+- **Charge** : 50 utilisateurs concurrents
+- **Débit** : ~69 req/s
+- **Temps moyen** : ~55–57 ms
+- **Percentiles** :
+  - P95 ~230–270 ms
+  - P99 ~430–740 ms
+- **Max latency** : ~1135 ms (pics ponctuels)
+- **Failures** : 0%
+
+#### Conclusion
+
+L’API reste **stable** sous charge concurrente modérée, avec une **augmentation progressive** de la latence (attendue, notamment avec SQLite et sans cache distribué).
+
 ## Exemples (Swagger)
 
 ### Créer un produit
