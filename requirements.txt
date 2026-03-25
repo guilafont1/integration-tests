@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+redis
+httpx
+faker
+pytest
+pytest-cov
+pytest-mock
+pytest-asyncio
+pytest-xdist
+locust
+bandit
+pylint
+flake8
