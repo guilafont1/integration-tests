@@ -1,7 +1,18 @@
+import pytest
+
+
 def test_cart_then_order_with_coupon(client):
+    unit_price = 1000
+    quantity = 2
+
     created_product = client.post(
         "/products",
-        json={"name": "Phone", "price": 1000, "stock": 10, "category": "tech"},
+        json={
+            "name": "Phone",
+            "price": unit_price,
+            "stock": 10,
+            "category": "tech",
+        },
     )
     assert created_product.status_code == 200
     product_id = created_product.json()["id"]
@@ -14,13 +25,13 @@ def test_cart_then_order_with_coupon(client):
     user_id = 1
     added = client.post(
         f"/cart/{user_id}/items",
-        json={"product_id": product_id, "quantity": 2},
+        json={"product_id": product_id, "quantity": quantity},
     )
     assert added.status_code == 200
     cart_json = added.json()
     assert cart_json["user_id"] == user_id
     assert cart_json["items"][0]["product_id"] == product_id
-    assert cart_json["items"][0]["quantity"] == 2
+    assert cart_json["items"][0]["quantity"] == quantity
 
     order = client.post(
         "/orders",
@@ -30,6 +41,7 @@ def test_cart_then_order_with_coupon(client):
     order_json = order.json()
     assert order_json["user_id"] == user_id
     assert order_json["coupon_code"] == "PROMO20"
-    assert order_json["total_ttc"] == 1920.0
+    expected_total_ttc = 1920.0
+    assert order_json["total_ttc"] == pytest.approx(expected_total_ttc)
     assert order_json["items"][0]["product_id"] == product_id
-    assert order_json["items"][0]["quantity"] == 2
+    assert order_json["items"][0]["quantity"] == quantity

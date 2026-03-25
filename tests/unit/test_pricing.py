@@ -16,7 +16,7 @@ from app.services.pricing import (
     ],
 )
 def test_calcul_prix_ttc_ok(prix_ht, expected):
-    assert calcul_prix_ttc(prix_ht) == expected
+    assert calcul_prix_ttc(prix_ht) == pytest.approx(expected)
 
 
 def test_calcul_prix_ttc_negative():
@@ -26,7 +26,7 @@ def test_calcul_prix_ttc_negative():
 
 def test_appliquer_coupon_normal():
     coupon = Coupon(code="PROMO20", reduction=20, actif=True)
-    assert appliquer_coupon(100, coupon) == 80.0
+    assert appliquer_coupon(100, coupon) == pytest.approx(80.0)
 
 
 def test_appliquer_coupon_inactif():
@@ -50,7 +50,7 @@ def test_calculer_total_with_products():
     p2 = Product(price=50)
 
     total = calculer_total([(p1, 1), (p2, 2)])
-    assert total == 240.0
+    assert total == pytest.approx(240.0)
 
 
 def test_calculer_total_with_coupon():
@@ -58,4 +58,4 @@ def test_calculer_total_with_coupon():
     coupon = Coupon(code="PROMO20", reduction=20, actif=True)
 
     total = calculer_total([(p1, 1)], coupon)
-    assert total == 96.0
+    assert total == pytest.approx(96.0)
