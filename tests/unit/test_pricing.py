@@ -42,7 +42,7 @@ def test_appliquer_coupon_invalid_reduction():
 
 
 def test_calculer_total_empty():
-    assert calculer_total([]) == 0.0
+    assert calculer_total([]) == pytest.approx(0.0)
 
 
 def test_calculer_total_with_products():
