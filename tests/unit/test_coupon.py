@@ -8,4 +8,3 @@ def test_coupon_50_percent_refused():
     coupon = Coupon(code="PROMO50", reduction=50, actif=True)
     with pytest.raises(ValueError):
         appliquer_coupon(100, coupon)
-

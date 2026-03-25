@@ -1,15 +1,22 @@
 import pytest
 
 from app.models import Coupon, Product
-from app.services.pricing import appliquer_coupon, calcul_prix_ttc, calculer_total
+from app.services.pricing import (
+    appliquer_coupon,
+    calcul_prix_ttc,
+    calculer_total,
+)
 
 
-def test_calcul_prix_ttc_normal():
-    assert calcul_prix_ttc(100) == 120.0
-
-
-def test_calcul_prix_ttc_zero():
-    assert calcul_prix_ttc(0) == 0.0
+@pytest.mark.parametrize(
+    ("prix_ht", "expected"),
+    [
+        (100, 120.0),
+        (0, 0.0),
+    ],
+)
+def test_calcul_prix_ttc_ok(prix_ht, expected):
+    assert calcul_prix_ttc(prix_ht) == expected
 
 
 def test_calcul_prix_ttc_negative():
@@ -52,4 +59,3 @@ def test_calculer_total_with_coupon():
 
     total = calculer_total([(p1, 1)], coupon)
     assert total == 96.0
-
