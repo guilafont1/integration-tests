@@ -68,6 +68,14 @@ uvicorn app.main:app --reload
 python -m pytest
 ```
 
+### JUnit XML (TP2)
+
+Générer un rapport JUnit XML (utile pour CI / Sonar / Jenkins) :
+
+```bash
+python -m pytest --junitxml=report.xml
+```
+
 ### Parallélisation
 
 Le projet est configuré avec `pytest-xdist` et lance les tests en parallèle par défaut (`-n auto`).
@@ -117,6 +125,21 @@ Lancer Locust :
 ```bash
 locust --host http://127.0.0.1:8000
 ```
+
+#### Générer automatiquement un rapport HTML (TP4)
+
+Le script `run_locust.ps1` génère un rapport **HTML** et des **CSV** dans `reports/` :
+
+```bash
+powershell -ExecutionPolicy Bypass -File run_locust.ps1
+```
+
+Variables d’environnement optionnelles :
+
+- `LOCUST_HOST` (défaut: `http://127.0.0.1:8000`)
+- `LOCUST_USERS` (défaut: 50)
+- `LOCUST_SPAWN_RATE` (défaut: 2)
+- `LOCUST_RUN_TIME` (défaut: 1m)
 
 Puis ouvrir `http://localhost:8089` et exécuter un test (ex : 50 users).
 
