@@ -123,7 +123,7 @@ class TestCreateUpdateDeleteProduct:
             json={"price": 79.99},
         )
         assert response.status_code == 200
-        assert response.json()["price"] == 79.99
+        assert response.json()["price"] == pytest.approx(79.99)
 
     def test_suppression_soft_delete(self, client):
         create = client.post(

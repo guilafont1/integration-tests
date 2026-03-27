@@ -14,10 +14,7 @@ def calcul_prix_ttc(prix_ht: float) -> float:
 
 def appliquer_coupon(prix: float, coupon: Coupon) -> float:
     if not coupon.actif:
-        raise ValueError(f"Coupon inactif : {coupon.code}")
-
-    if coupon.reduction > 30:
-        raise ValueError("Réduction trop élevée")
+        raise ValueError("Coupon inactif")
 
     if not 0 < coupon.reduction <= 100:
         raise ValueError(f"Réduction invalide : {coupon.reduction}")

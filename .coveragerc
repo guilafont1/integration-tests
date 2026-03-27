@@ -2,6 +2,7 @@
 branch = True
 
 [report]
+fail_under = 80
 # On exclut volontairement les fichiers "infrastructure" (API wiring / config)
 # pour mesurer la couverture du code métier du TP (services / logique).
 omit =

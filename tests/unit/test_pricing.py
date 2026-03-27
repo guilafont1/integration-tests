@@ -41,6 +41,20 @@ def test_appliquer_coupon_invalid_reduction():
         appliquer_coupon(100, coupon)
 
 
+@pytest.mark.parametrize(
+    ("reduction", "prix_initial", "prix_attendu"),
+    [
+        (10, 100.0, 90.0),
+        (50, 200.0, 100.0),
+        (100, 50.0, 0.0),
+        (1, 100.0, 99.0),
+    ],
+)
+def test_coupon_reductions_diverses(reduction, prix_initial, prix_attendu):
+    coupon = Coupon(code=f"TEST{reduction}", reduction=float(reduction), actif=True)
+    assert appliquer_coupon(prix_initial, coupon) == pytest.approx(prix_attendu)
+
+
 def test_calculer_total_empty():
     assert calculer_total([]) == pytest.approx(0.0)
 
@@ -59,3 +73,12 @@ def test_calculer_total_with_coupon():
 
     total = calculer_total([(p1, 1)], coupon)
     assert total == pytest.approx(96.0)
+
+
+def test_calculer_total_avec_coupon_deux_produits():
+    p1 = Product(price=50)
+    p2 = Product(price=30)
+    coupon = Coupon(code="PROMO20", reduction=20, actif=True)
+    # (50 + 30) HT = 80 -> TTC 96 -> -20% = 76.8
+    total = calculer_total([(p1, 1), (p2, 1)], coupon)
+    assert total == pytest.approx(76.8)
