@@ -7,7 +7,10 @@ from app.services.pricing import calculer_total
 def _get_coupon(db: Session, code: str | None) -> Coupon | None:
     if not code:
         return None
-    return db.query(Coupon).filter(Coupon.code == code).first()
+    coupon = db.query(Coupon).filter(Coupon.code == code).first()
+    if not coupon:
+        raise LookupError(f"Coupon introuvable : {code}")
+    return coupon
 
 
 def create_order_from_cart(
@@ -31,7 +34,7 @@ def create_order_from_cart(
         total_ht=round(total_ht, 2),
         total_ttc=total_ttc,
         coupon_code=coupon.code if coupon else None,
-        status="created",
+        status="pending",
     )
     db.add(order)
     db.commit()
@@ -47,6 +50,30 @@ def create_order_from_cart(
             )
         )
 
+    db.commit()
+    db.refresh(order)
+    return order
+
+
+def update_order_status(
+    db: Session, order_id: int, new_status: str
+) -> Order:
+    order = db.get(Order, order_id)
+    if not order:
+        raise LookupError(f"Commande introuvable : {order_id}")
+
+    allowed_transitions = {
+        "pending": {"confirmed"},
+        "confirmed": {"shipped"},
+        "shipped": set(),
+    }
+    current = order.status
+    if new_status not in allowed_transitions.get(current, set()):
+        raise ValueError(
+            f"Transition invalide : {current} -> {new_status}"
+        )
+
+    order.status = new_status
     db.commit()
     db.refresh(order)
     return order

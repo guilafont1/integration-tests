@@ -35,9 +35,13 @@ def create_app(engine: Optional[Engine] = None) -> FastAPI:
     app.include_router(orders.router)
     app.include_router(coupons.router)
 
+    @app.get("/")
+    def root():
+        return {"message": "ShopFlow API"}
+
     @app.get("/health")
     def health_check():
-        return {"status": "ok"}
+        return {"status": "ok", "db": "sqlite", "version": "0.1.0"}
 
     return app
 

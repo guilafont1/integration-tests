@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas import CartItemCreate, CartResponse
-from app.services.cart import add_item, get_or_create_cart
+from app.services.cart import add_item, clear_cart, get_or_create_cart
 
 router = APIRouter()
 
@@ -14,7 +14,11 @@ def get_cart(user_id: int, db: Session = Depends(get_db)):
     return cart
 
 
-@router.post("/cart/{user_id}/items", response_model=CartResponse)
+@router.post(
+    "/cart/{user_id}/items",
+    response_model=CartResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 def add_cart_item(
     user_id: int, item: CartItemCreate, db: Session = Depends(get_db)
 ):
@@ -22,3 +26,10 @@ def add_cart_item(
         return add_item(db, user_id, item.product_id, item.quantity)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.delete("/cart/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_cart(user_id: int, db: Session = Depends(get_db)):
+    cart = get_or_create_cart(db, user_id)
+    clear_cart(db, cart)
+    return None

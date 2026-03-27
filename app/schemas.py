@@ -19,6 +19,14 @@ class ProductResponse(ProductCreate):
     model_config = {"from_attributes": True}
 
 
+class ProductUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    price: Optional[float] = Field(None, gt=0)
+    stock: Optional[int] = Field(None, ge=0)
+    category: Optional[str] = None
+    active: Optional[bool] = None
+
+
 class CouponCreate(BaseModel):
     code: str = Field(..., min_length=1, max_length=20)
     reduction: float = Field(..., gt=0, le=100)
@@ -64,6 +72,10 @@ class CartResponse(BaseModel):
 class OrderCreate(BaseModel):
     user_id: int = Field(..., gt=0)
     coupon_code: Optional[str] = Field(None, max_length=20)
+
+
+class OrderStatusUpdate(BaseModel):
+    status: str = Field(..., min_length=1, max_length=20)
 
 
 class OrderItemResponse(BaseModel):
