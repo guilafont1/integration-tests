@@ -45,14 +45,19 @@ def test_appliquer_coupon_invalid_reduction():
     ("reduction", "prix_initial", "prix_attendu"),
     [
         (10, 100.0, 90.0),
-        (50, 200.0, 100.0),
-        (100, 50.0, 0.0),
+        (30, 200.0, 140.0),
         (1, 100.0, 99.0),
     ],
 )
 def test_coupon_reductions_diverses(reduction, prix_initial, prix_attendu):
     coupon = Coupon(code=f"TEST{reduction}", reduction=float(reduction), actif=True)
     assert appliquer_coupon(prix_initial, coupon) == pytest.approx(prix_attendu)
+
+
+def test_appliquer_coupon_refuse_plus_de_30_pourcent():
+    coupon = Coupon(code="PROMO31", reduction=31, actif=True)
+    with pytest.raises(ValueError, match="30"):
+        appliquer_coupon(100, coupon)
 
 
 def test_calculer_total_empty():

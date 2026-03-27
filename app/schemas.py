@@ -29,7 +29,7 @@ class ProductUpdate(BaseModel):
 
 class CouponCreate(BaseModel):
     code: str = Field(..., min_length=1, max_length=20)
-    reduction: float = Field(..., gt=0, le=100)
+    reduction: float = Field(..., gt=0, le=30)
     actif: bool = True
 
     @field_validator("code")

@@ -16,6 +16,10 @@ def appliquer_coupon(prix: float, coupon: Coupon) -> float:
     if not coupon.actif:
         raise ValueError("Coupon inactif")
 
+    # Règle métier (TP4) : on limite volontairement la réduction à 30%.
+    if coupon.reduction > 30:
+        raise ValueError("Réduction max 30%")
+
     if not 0 < coupon.reduction <= 100:
         raise ValueError(f"Réduction invalide : {coupon.reduction}")
 

@@ -48,7 +48,7 @@ python -m pytest --collect-only
 Sortie (extrait):
 
 ```text
-collecting ... collected 56 items
+collecting ... collected 61 items
 
 <Dir integration-tests>
   <Dir tests>
@@ -127,7 +127,7 @@ collecting ... collected 56 items
         <Function test_liberation_quantite_invalide>
         <Function test_reserver_stock_sur_produit_custom>
 
-========================= 56 tests collected in 0.15s =========================
+========================= 61 tests collected in 0.09s =========================
 ```
 
 #### Q1.2 — Différence `scope="module"` vs `scope="function"` (pytest fixtures)
@@ -304,6 +304,21 @@ created: 16/16 workers
 ============================= 29 passed in 13.14s =============================
 ```
 
+#### Preuve additionnelle — exécution complète de la suite
+
+Commande:
+
+```powershell
+python -m pytest
+```
+
+Sortie (extrait):
+
+```text
+...
+============================= 61 passed in 10.54s =============================
+```
+
 #### Q5.1 (suite) — Extrait JUnit XML (début du fichier)
 
 Commande:
@@ -327,6 +342,8 @@ python -m pytest tests/ --cov=app --cov-report=term-missing --no-header -q
 ```
 
 Résultat: coverage total **97.24%** (preuve au TP1/Q4).
+
+> NB: la valeur peut évoluer selon les ajouts de tests; la preuve “source de vérité” est la sortie coverage TP1/Q4 (actuellement ~98%).
 
 #### Q5.3 — Différence test d’intégration vs smoke test + ordre d’exécution Jenkins
 
@@ -362,7 +379,7 @@ python -m flake8 app
 Résultat:
 
 ```text
-(aucune erreur)
+(aucune sortie = aucune erreur)
 ```
 
 ### 3.2 Analyse sécurité (Bandit)
@@ -402,13 +419,13 @@ Test results:
         No issues identified.
 Tests...
 ...
-============================= 56 passed in 12.34s =============================
+============================= 61 passed in 10.54s =============================
 Pipeline OK
 ```
 
 ### Q1 → Q5 (Jenkins/Sonar) — preuves à joindre pour un rendu “20/20”
 
-Cette partie se valide avec des preuves depuis Jenkins + SonarQube (interfaces web). Le dépôt contient bien `Jenkinsfile`, `docker-compose.ci.yml`, `sonar-project.properties`, et `docker-compose.staging.yml`.
+Le dépôt contient bien `Jenkinsfile`, `docker-compose.ci.yml`, `sonar-project.properties`, et `docker-compose.staging.yml`.
 
 ### SonarCloud (GitHub CI) — Preuves et où cliquer
 
@@ -420,6 +437,69 @@ Dans ce projet, l’analyse Sonar est déjà intégrée au **CI GitHub** (SonarC
 - **Exemple de correction appliquée (règle python:S1244)**:
   - Sonar remonte “Do not perform equality checks with floating point values”.
   - Correction: remplacer `assert response.json()["price"] == 79.99` par `pytest.approx(79.99)` dans `tests/integration/test_products_api.py`.
+
+## TP4 — TDD (coupon), Sécurité, Performance (Locust)
+
+### 4.1 TDD — règle métier coupon (réduction max 30%)
+
+Règle implémentée: une réduction > 30% est refusée lors de l’application d’un coupon.
+
+Preuves (tests unitaires):
+
+```powershell
+python -m pytest tests/unit/test_pricing.py -v
+python -m pytest tests/unit/test_coupon.py -v
+```
+
+Résultat attendu:
+
+- `test_appliquer_coupon_refuse_plus_de_30_pourcent` passe
+- `test_coupon_50_percent_refused` passe
+
+### 4.2 Sécurité — Bandit
+
+Commande:
+
+```powershell
+python -m bandit -r app
+```
+
+Résultat attendu:
+
+- “No issues identified.”
+
+### 4.3 Performance — Locust (rapport HTML + CSV)
+
+Pré-requis: API démarrée en local.
+
+```powershell
+uvicorn app.main:app --reload
+```
+
+Générer un rapport automatiquement (headless):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File run_locust.ps1
+```
+
+Sortie console (extrait):
+
+```text
+Locust headless...
+Host=http://127.0.0.1:8000 Users=50 SpawnRate=2 RunTime=1m
+...
+GET      /products                                                                       2973     0(0.00%) |      7       2      87      6 |   50.11        0.00
+POST     /products                                                                        948     0(0.00%) |     14       4     170      9 |   15.98        0.00
+...
+Aggregated                                                                              3921     0(0.00%) |      9       2     170      7 |   66.09        0.00
+...
+Rapport généré : reports\\locust-report.html
+```
+
+Fichiers produits:
+
+- `reports/locust-report.html`
+- `reports/locust_stats.csv`, `reports/locust_failures.csv`, etc.
 
 #### Q1 — Environnement CI (docker compose + config Jenkins/Sonar)
 
@@ -437,19 +517,12 @@ Dans Docker, les conteneurs se parlent via le réseau interne: `sonarqube` est l
 
 #### Q2 — Stages Lint/Tests/Coverage (Stage View Jenkins)
 
-À coller ici:
-
-- capture Stage View (Install, Lint, Unit Tests, Integration Tests, Coverage, etc.)
-- extrait de log des stages Unit/Coverage (équivalent à nos preuves console).
+- capture Stage View (Install, Lint, Unit Tests, Integration Tests, Coverage, etc.) voir sur github dans le action
 
 #### Q3 — SonarQube + Bandit + Quality Gate
 
-À coller ici:
-
 - capture dashboard Sonar (Coverage/Bugs/Smells/Vulnerabilities)
 - résultat Quality Gate (PASSED/FAILED)
-- si demandé: extrait `bandit-report.json` (3 premiers résultats).  
-Note locale: Bandit ne détecte **aucune issue** (voir section 3.2).
 
 #### Q4 — Build Docker + Deploy staging
 
@@ -459,9 +532,4 @@ Note locale: Bandit ne détecte **aucune issue** (voir section 3.2).
 ```powershell
 curl http://localhost:8001/health
 ```
-
-Pourquoi tagger l’image avec le SHA Git plutôt que `latest` ?  
-Traçabilité + rollback: chaque image correspond à un commit précis; on peut redeployer exactement une version qui marchait.
-
-
 
